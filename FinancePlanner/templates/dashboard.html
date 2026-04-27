@@ -1,0 +1,81 @@
+{% extends "base.html" %}
+{% block content %}
+
+<!-- ================= BALANCE + LEVEL PANEL ================= -->
+<div class="card-modern mb-3">
+
+    <div class="balance-wrapper">
+
+        <!-- LEFT: BALANCE -->
+        <div class="balance-left">
+            <h3>Balance: {{ balance }} {{ currency }}</h3>
+        </div>
+
+        <!-- DIVIDER LINE -->
+        <div class="balance-divider"></div>
+
+        <!-- RIGHT: LEVEL -->
+        <div class="balance-right text-end">
+
+            <div>
+                <b>Level {{ level }}</b>
+            </div>
+
+            <!-- XP BAR MOVED UNDER LEVEL TEXT -->
+            <div class="xp-bar-bg mt-1">
+                <div class="xp-bar-fill"
+                     style="width: {{ (xp / xp_needed * 100) if xp_needed else 0 }}%">
+                </div>
+            </div>
+
+            <small>{{ xp }} / {{ xp_needed }} XP</small>
+
+        </div>
+
+    </div>
+
+</div>
+
+<a href="/add" class="btn btn-success">Add Transaction</a>
+
+<hr>
+
+<!-- ================= TRANSACTIONS ================= -->
+<div class="card-modern">
+<h4>Transactions</h4>
+
+<ul>
+{% for t in transactions %}
+<li>
+    {% if t.type == 'income' %}
+        <span style="color:#00ff9f">+{{ t.amount }} {{ currency }}</span>
+    {% else %}
+        <span style="color:#ff4d4d">-{{ t.amount }} {{ currency }}</span>
+    {% endif %}
+    - {{ t.description }}
+</li>
+{% endfor %}
+</ul>
+</div>
+
+<!-- ================= GOALS ================= -->
+<div class="goal-box">
+<h5>Goals</h5>
+
+{% for g in goals %}
+<div>
+    <b>{{ g.description }}</b><br>
+
+    {{ g.current_amount }} {{ currency }} / {{ g.target_amount }} {{ currency }}
+
+    <div class="mini-bar">
+        <div class="mini-fill"
+             style="width: {{ (g.current_amount / g.target_amount)*100 if g.target_amount else 0 }}%">
+        </div>
+    </div>
+</div>
+{% endfor %}
+
+</div>
+
+{% endblock %}

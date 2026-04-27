@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h3>Profile</h3>
+
+<p>🔥 Streak: {{ streak }} days</p>
+
+<h4>Achievements</h4>
+
+{% for a in achievements %}
+<div class="card-modern mb-2">
+    <b>{{ a.title }}</b>
+    <p>{{ a.description }}</p>
+</div>
+{% endfor %}
+
+{% endblock %}

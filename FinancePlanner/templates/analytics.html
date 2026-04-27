@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h3 class="mb-3">Analytics</h3>
+
+<div class="card-modern mb-3 d-flex">
+
+    <!-- LEFT -->
+    <div style="flex:1; padding-right:10px;">
+        <h5>Balance Changes</h5>
+        <p>Today: {{ week.net }} {{ currency }}</p>
+        <p>Last 30 Days: {{ month.net }} {{ currency }}</p>
+        <p>Last Year: {{ year.net }} {{ currency }}</p>
+    </div>
+
+    <!-- RIGHT -->
+    <div style="flex:1; border-left:1px solid rgba(255,255,255,0.2); padding-left:10px;">
+        <h5>Daily Average</h5>
+        <h2>{{ daily_avg }} {{ currency }}</h2>
+
+        <small>
+            Estimated Savings:<br>
+            Monthly: {{ monthly_projection }} {{ currency }}<br>
+            Yearly: {{ yearly_projection }} {{ currency }}
+        </small>
+    </div>
+
+</div>
+
+<ul class="nav nav-tabs mb-3">
+<li><button class="nav-link active" data-bs-toggle="tab" data-bs-target="#week">Week</button></li>
+<li><button class="nav-link" data-bs-toggle="tab" data-bs-target="#month">Month</button></li>
+<li><button class="nav-link" data-bs-toggle="tab" data-bs-target="#year">Year</button></li>
+</ul>
+
+<div class="tab-content">
+
+<div class="tab-pane fade show active" id="week">
+<canvas id="weekChart"></canvas>
+</div>
+
+<div class="tab-pane fade" id="month">
+<canvas id="monthChart"></canvas>
+</div>
+
+<div class="tab-pane fade" id="year">
+<canvas id="yearChart"></canvas>
+</div>
+
+</div>
+
+<script>
+const weekData = {{ week_chart|tojson }};
+const monthData = {{ month_chart|tojson }};
+const yearData = {{ year_chart|tojson }};
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+function draw(id,data){
+if(!data || !data.length) return;
+
+new Chart(document.getElementById(id),{
+type:'line',
+data:{
+labels:data.map(d=>d.x),
+datasets:[{
+label:"Balance",
+data:data.map(d=>d.y),
+fill:true
+}]
+}
+});
+}
+
+draw("weekChart",weekData);
+draw("monthChart",monthData);
+draw("yearChart",yearData);
+</script>
+
+{% endblock %}

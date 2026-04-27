@@ -1,0 +1,135 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h3>Goals</h3>
+
+<form method="POST" class="card-modern mb-3">
+    <input name="target"
+           class="form-control mb-2"
+           placeholder="Target Amount"
+           required>
+
+    <input name="description"
+           class="form-control mb-2"
+           placeholder="Description"
+           required>
+
+    <button class="btn btn-success">Add Goal</button>
+</form>
+
+<hr>
+
+<div id="goal-list">
+
+{% for g in goals %}
+<div class="card-modern mb-2 goal-item"
+     draggable="true"
+     data-id="{{ g.id }}">
+
+    <div class="drag-handle">☰</div>
+
+    <b>{{ g.description }}</b><br>
+
+    {{ g.current_amount }} / {{ g.target_amount }}
+
+    <div class="mini-bar">
+        <div class="mini-fill"
+             style="width: {{ (g.current_amount / g.target_amount)*100 if g.target_amount else 0 }}%"></div>
+    </div>
+
+</div>
+{% endfor %}
+
+</div>
+
+<script>
+let dragged = null;
+
+function bindDrag() {
+    document.querySelectorAll(".goal-item").forEach(item => {
+
+        const handle = item.querySelector(".drag-handle");
+
+        handle.onmousedown = () => item.draggable = true;
+
+        item.ondragstart = () => {
+            dragged = item;
+            item.classList.add("dragging");
+        };
+
+        item.ondragend = () => item.classList.remove("dragging");
+
+        item.ondragover = e => e.preventDefault();
+
+        item.ondrop = e => {
+            e.preventDefault();
+
+            if (dragged && dragged !== item) {
+                item.parentNode.insertBefore(dragged, item);
+                updatePriority();
+            }
+        };
+    });
+}
+
+function renderGoals(goals) {
+    const container = document.getElementById("goal-list");
+    container.innerHTML = "";
+
+    goals.forEach(g => {
+
+        const target = Number(g.target_amount || 0);
+        const current = Number(g.current_amount || 0);
+
+        let percent = 0;
+
+        if (target > 0 && current > 0) {
+            percent = (current / target) * 100;
+        }
+
+        percent = Math.max(0, Math.min(100, percent));
+
+        container.innerHTML += `
+        <div class="card-modern mb-2 goal-item" draggable="true" data-id="${g.id}">
+            <div class="drag-handle">☰</div>
+
+            <b>${g.description}</b><br>
+
+            ${current} / ${target}
+
+            <div class="mini-bar">
+
+                ${current > 0 && target > 0 ? `
+                    <div class="mini-fill" style="width:${percent}%"></div>
+                ` : `
+                    <div class="mini-fill empty"></div>
+                `}
+
+            </div>
+        </div>`;
+    });
+
+    bindDrag();
+}
+
+function updatePriority() {
+    const ids = [...document.querySelectorAll(".goal-item")]
+        .map(el => el.dataset.id);
+
+    fetch("/update_priority", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ order: ids })
+    })
+    .then(r => r.json())
+    .then(data => {
+        if (data.goals) {
+            renderGoals(data.goals);
+        }
+    });
+}
+
+bindDrag();
+</script>
+
+{% endblock %}

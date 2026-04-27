@@ -1,0 +1,23 @@
+{% extends "base.html" %}
+{% block content %}
+
+<h3>All Transactions</h3>
+
+{% for t in transactions %}
+<div class="card-modern mb-2 d-flex justify-content-between align-items-center">
+
+<div>
+    {% if t.type == 'income' %}
+        <span style="color:#00ff9f">+{{ t.amount }} {{ currency }}</span>
+    {% else %}
+        <span style="color:#ff4d4d">-{{ t.amount }} {{ currency }}</span>
+    {% endif %}
+    - {{ t.description }}
+</div>
+
+<a href="/delete_transaction/{{ t.id }}" class="btn btn-sm btn-danger">Delete</a>
+
+</div>
+{% endfor %}
+
+{% endblock %}

@@ -318,7 +318,7 @@ def goals():
     return render_template("goals.html", goals=goals, currency=get_currency())
 
 
-# ================= DRAG DROP FIX (LIVE UPDATE SUPPORT) =================
+# ================= DRAG DROP (LIVE UPDATE SUPPORT) =================
 @app.route('/update_priority', methods=['POST'])
 @login_required
 def update_priority():
@@ -331,7 +331,6 @@ def update_priority():
 
     db.session.commit()
 
-    # CRITICAL FIX: recalc immediately and return fresh state
     update_goals(current_user.id)
 
     goals = Goal.query.filter_by(user_id=current_user.id)\
@@ -372,7 +371,7 @@ def analytics():
     month = net(30)
     year = net(365)
 
-    daily_avg = round(week / 7, 1) if week else 0.0
+    daily_avg = round(week / 30, 1) if week else 0.0
 
     monthly_projection = round(daily_avg * 30, 1)
     yearly_projection = round(daily_avg * 365, 1)
